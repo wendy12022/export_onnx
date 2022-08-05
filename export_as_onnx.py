@@ -101,24 +101,27 @@ def export_inferred_onnx(name, input_shape, precision=32):
         model = getattr(models, name)(pretrained=False)
 
     if precision == 16:
-        if torch.cuda.is_available():
+        """ if torch.cuda.is_available():
             model = model.eval().cuda().half()
             dummy_input = dummy_input.cuda().half()
         else:
             model = model.eval().half()
-            dummy_input = dummy_input.half()
+            dummy_input = dummy_input.half() """
+        model = model.eval().half()
+        dummy_input = dummy_input.half()
         fn = f"onnx_fp16/{name}.onnx"
     else:
-        if torch.cuda.is_available():
+        """ if torch.cuda.is_available():
             model = model.eval().cuda()
             dummy_input = dummy_input.cuda()
         else:
-            model = model.eval()
+            model = model.eval() """
+        model = model.eval() 
     # # Without parameters
     # torch.onnx.export(model, dummy_input, fn,
     #   export_params=False, verbose=False)
     torch.onnx.export(model, dummy_input, fn,
-                      export_params=True, verbose=False, opset_version=13)
+                      export_params=False, verbose=False, opset_version=13)
                     #   export_params=True, verbose=False, opset_version=12)
     infer_onnx(fn)
 
@@ -186,10 +189,10 @@ input_shape = (batch_size, 256, 24, 24)
 export_inferred_onnx('TestNet', input_shape)
 
 input_shape = (1, 3, 224, 224)
-export_inferred_onnx('GCN', input_shape)
+export_inferred_onnx('GCN', input_shape) 
 
 input_shape = (batch_size, 3, 224, 224)
-export_inferred_onnx('regnet', input_shape)
+export_inferred_onnx('regnet_x_32gf', input_shape)
 
 input_shape = (batch_size, 3, 224, 224)
 export_inferred_onnx('unet', input_shape)
